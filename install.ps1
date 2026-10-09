@@ -33,10 +33,12 @@ if (-not $InstallDir) {
 
 $archRaw = $env:PROCESSOR_ARCHITEW6432
 if (-not $archRaw) { $archRaw = $env:PROCESSOR_ARCHITECTURE }
-switch ($archRaw) {
-    'AMD64' { $arch = 'amd64' }
-    'ARM64' { $arch = 'arm64' }
-    default { throw "Unsupported architecture: $archRaw" }
+if ($archRaw -eq 'AMD64') {
+    $arch = 'amd64'
+} else {
+    $archLower = "$archRaw".ToLower()
+    [Console]::Error.WriteLine("stk: unsupported platform windows/${archLower}; supported: linux x64, macOS arm64, Windows x64")
+    exit 1
 }
 
 $tmp = Join-Path ([System.IO.Path]::GetTempPath()) ("stk-" + [System.Guid]::NewGuid().ToString('N'))

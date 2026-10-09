@@ -1,7 +1,7 @@
 # STK — Sigma Token Killer
 
 STK is a stdlib-only Go token-reducer. It is **NOT rtk** and has no relation to
-it. STK works on Linux, macOS, and Windows. Usage is explicit opt-in only.
+it. STK supports three platforms: Windows x64, macOS arm64, and Linux x64. Usage is explicit opt-in only.
 
 STK is open source (MIT). The public repo is
 <https://github.com/sigmashakeinc/stk>. The SigmaShake monorepo is the source of
@@ -33,6 +33,8 @@ Usage is always explicit — `stk <cmd>` — and an SSG LOG nudge will remind yo
 if you forget.
 
 ## Install
+
+Supported platforms: Windows x64, macOS arm64, Linux x64. Other platforms are not supported. The installers exit with an error on them.
 
 Linux and macOS:
 
@@ -122,6 +124,11 @@ bun run gate:test go test -cover ./...
 `rtk` is intentionally absent from this repo. Do not add it as a dependency.
 Do not import it in any script. STK never installs a silent command-rewrite
 hook.
+
+## Contributing
+
+SigmaShake maintains this repository. The repository does not accept outside
+issues or pull requests. Issues and outside pull requests are disabled.
 
 ## License
 

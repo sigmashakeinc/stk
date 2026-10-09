@@ -47,16 +47,20 @@ while [ $# -gt 0 ]; do
 	esac
 done
 
-case "$(uname -s)" in
-Linux) os=linux ;;
-Darwin) os=darwin ;;
-*) die "unsupported OS: $(uname -s). Use install.ps1 on Windows." ;;
-esac
-
-case "$(uname -m)" in
+raw_os="$(uname -s | tr '[:upper:]' '[:lower:]')"
+raw_arch="$(uname -m)"
+case "$raw_arch" in
 x86_64 | amd64) arch=amd64 ;;
 aarch64 | arm64) arch=arm64 ;;
-*) die "unsupported architecture: $(uname -m)" ;;
+*) arch="$raw_arch" ;;
+esac
+case "$raw_os/$arch" in
+linux/amd64) os=linux ;;
+darwin/arm64) os=darwin ;;
+*)
+	printf 'stk: unsupported platform %s/%s; supported: linux x64, macOS arm64, Windows x64\n' "$raw_os" "$arch" >&2
+	exit 1
+	;;
 esac
 
 if command -v sha256sum >/dev/null 2>&1; then
