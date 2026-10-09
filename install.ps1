@@ -23,6 +23,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
+# Windows PowerShell 5.1 needs TLS 1.2 for GitHub.
+try { [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 } catch { }
 $Repo = 'sigmashakeinc/stk'
 
 if (-not $InstallDir) {
@@ -54,11 +56,14 @@ try {
     } else {
         if (-not $Version) {
             # The /releases/latest URL redirects to /releases/tag/<tag>.
-            $resp = Invoke-WebRequest -Uri "https://github.com/$Repo/releases/latest" -MaximumRedirection 0 -SkipHttpErrorCheck -UseBasicParsing
-            $loc = $resp.Headers['Location']
-            if ($loc -is [array]) { $loc = $loc[0] }
-            if (-not $loc) { throw 'Cannot resolve the latest release.' }
-            $Version = ($loc -split '/')[-1]
+            # Do not follow the redirect. Read the Location header.
+            # This works on Windows PowerShell 5.1 and on PowerShell 7.
+            $req = [Net.WebRequest]::Create("https://github.com/$Repo/releases/latest")
+            $req.AllowAutoRedirect = $false
+            $resp = $req.GetResponse()
+            try { $loc = $resp.Headers['Location'] } finally { $resp.Close() }
+            if (-not $loc) { throw 'Cannot resolve the latest release: no Location header.' }
+            $Version = ($loc -split '/tag/')[-1]
         }
         $archiveName = "stk_${Version}_windows_${arch}.zip"
         $base = "https://github.com/$Repo/releases/download/$Version"
